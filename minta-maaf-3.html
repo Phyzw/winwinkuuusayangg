@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Minta Maaf 🥺</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,600;0,700;0,800;0,900;1,700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --pink-light: #fff0f5;
+      --pink-mid:   #ffd6e7;
+      --pink:       #ff8fab;
+      --pink-deep:  #e05480;
+      --red:        #ff4d6d;
+      --text:       #5c2a3a;
+      --shadow:     0 8px 40px rgba(255,100,140,0.18);
+      --radius:     28px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: linear-gradient(135deg, #fff0f5 0%, #ffe4f0 40%, #ffd6e7 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Canvas background */
+    #heartCanvas, #confettiCanvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+    }
+    #heartCanvas    { z-index: 0; }
+    #confettiCanvas { z-index: 5; }
+
+    /* Card */
+    #card {
+      position: relative;
+      z-index: 10;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(12px);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow), 0 2px 0 var(--pink-mid);
+      padding: 40px 36px 36px;
+      width: min(92vw, 440px);
+      text-align: center;
+      border: 2px solid rgba(255,180,210,.4);
+    }
+
+    /* Steps */
+    .step {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      animation: fadeIn .55s ease;
+    }
+    .step.active { display: flex; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(18px) scale(.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* Cat SVG */
+    .cat-wrap {
+      position: relative;
+      width: 130px;
+      height: 130px;
+      margin: 0 auto;
+      animation: float 3.2s ease-in-out infinite;
+      filter: drop-shadow(0 8px 20px rgba(255,100,140,.3));
+      user-select: none;
+    }
+    .cat-wrap svg { width: 100%; height: 100%; }
+
+    @keyframes float {
+      0%,100% { transform: translateY(0) rotate(-2deg); }
+      50%      { transform: translateY(-14px) rotate(2deg); }
+    }
+    /* Blush pulse */
+    @keyframes blush {
+      0%,100% { opacity: .7; }
+      50%      { opacity: 1; }
+    }
+    .cat-blush { animation: blush 2s ease-in-out infinite; }
+
+    /* Tail wag */
+    @keyframes tailwag {
+      0%,100% { transform-origin: top left; transform: rotate(-10deg); }
+      50%      { transform-origin: top left; transform: rotate(10deg); }
+    }
+    .cat-tail { animation: tailwag 1s ease-in-out infinite; }
+
+    /* Ear twitch */
+    @keyframes eartwitch {
+      0%,90%,100% { transform: rotate(0deg); }
+      95%          { transform: rotate(-8deg); }
+    }
+    .cat-ear-l { animation: eartwitch 3s ease-in-out infinite; transform-origin: bottom center; }
+    .cat-ear-r { animation: eartwitch 3s ease-in-out infinite 0.4s; transform-origin: bottom center; }
+
+    /* Sparkle blink */
+    @keyframes sparkle {
+      0%,100% { opacity:0; transform:scale(0); }
+      50%      { opacity:1; transform:scale(1); }
+    }
+    .cat-sparkle { animation: sparkle 1.5s ease-in-out infinite; }
+    .cat-sparkle2 { animation: sparkle 1.5s ease-in-out infinite 0.75s; }
+
+    /* Text */
+    .step-title {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1.4;
+    }
+
+    .funny-msg {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--pink-deep);
+      background: var(--pink-light);
+      border-radius: 12px;
+      padding: 8px 16px;
+      min-height: 36px;
+      visibility: hidden;
+    }
+
+    /* Button row */
+    .btn-row {
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      flex-wrap: wrap;
+      position: relative;
+      min-height: 54px;
+    }
+
+    /* Buttons */
+    .btn {
+      font-family: 'Nunito', sans-serif;
+      font-weight: 800;
+      font-size: 1rem;
+      padding: 13px 28px;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: transform .18s, box-shadow .18s;
+    }
+    .btn-yes {
+      background: linear-gradient(135deg, var(--pink) 0%, var(--red) 100%);
+      color: white;
+      box-shadow: 0 5px 18px rgba(255,77,109,.35);
+    }
+    .btn-yes:hover { transform: scale(1.07) translateY(-2px); }
+    .btn-yes:active { transform: scale(.97); }
+
+    .btn-no {
+      background: linear-gradient(135deg, #f9d0e4 0%, #f4b8d2 100%);
+      color: var(--pink-deep);
+      box-shadow: 0 4px 14px rgba(255,100,140,.2);
+      position: absolute;
+      white-space: nowrap;
+    }
+
+    .btn-outline {
+      background: white;
+      color: var(--pink-deep);
+      border: 2px solid var(--pink);
+      box-shadow: 0 4px 14px rgba(255,100,140,.15);
+    }
+    .btn-outline:hover { transform: scale(1.05) translateY(-2px); }
+
+    /* Step 3 */
+    #step3Title {
+      font-size: 1.6rem;
+      font-weight: 900;
+      color: var(--pink-deep);
+      line-height: 1.3;
+    }
+
+    #apologyBox {
+      background: var(--pink-light);
+      border-radius: 18px;
+      padding: 20px 22px;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.7;
+      text-align: left;
+      border: 1.5px solid var(--pink-mid);
+      min-height: 80px;
+    }
+
+    #cursor {
+      display: inline-block;
+      width: 2px;
+      height: 1.1em;
+      background: var(--pink-deep);
+      margin-left: 2px;
+      vertical-align: middle;
+      animation: blink .7s step-end infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+
+    /* Flower particle */
+    .flower-particle {
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
+      user-select: none;
+      line-height: 1;
+    }
+
+    @media (max-width: 480px) {
+      #card { padding: 32px 22px 28px; }
+      .step-title { font-size: 1.15rem; }
+      .cat-wrap { width: 105px; height: 105px; }
+      #step3Title { font-size: 1.3rem; }
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="heartCanvas"></canvas>
+<canvas id="confettiCanvas"></canvas>
+
+
+<!-- Card -->
+<div id="card">
+
+  <!-- STEP 1: sweet begging cat with sparkles -->
+  <div class="step active" id="step1">
+    <div class="cat-wrap">
+      <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+        <!-- tail -->
+        <path class="cat-tail" d="M30 95 Q10 110 20 118 Q28 122 35 108" fill="none" stroke="#f4a0c0" stroke-width="5" stroke-linecap="round"/>
+        <!-- body -->
+        <ellipse cx="60" cy="88" rx="30" ry="24" fill="#fde8f0"/>
+        <!-- head -->
+        <circle cx="60" cy="58" r="32" fill="#fde8f0"/>
+        <!-- left ear -->
+        <polygon class="cat-ear-l" points="32,32 24,10 44,26" fill="#fde8f0"/>
+        <polygon points="34,30 28,16 42,27" fill="#f9aecb"/>
+        <!-- right ear -->
+        <polygon class="cat-ear-r" points="88,32 96,10 76,26" fill="#fde8f0"/>
+        <polygon points="86,30 92,16 78,27" fill="#f9aecb"/>
+        <!-- eyes — big sparkly UwU -->
+        <ellipse cx="47" cy="57" rx="9" ry="10" fill="#3d2240"/>
+        <ellipse cx="73" cy="57" rx="9" ry="10" fill="#3d2240"/>
+        <!-- eye shine -->
+        <circle cx="51" cy="53" r="3" fill="white"/>
+        <circle cx="77" cy="53" r="3" fill="white"/>
+        <circle cx="49" cy="59" r="1.2" fill="white"/>
+        <circle cx="75" cy="59" r="1.2" fill="white"/>
+        <!-- tiny heart pupils -->
+        <text x="44" y="61" font-size="7" fill="#ff6ba8">♥</text>
+        <text x="70" y="61" font-size="7" fill="#ff6ba8">♥</text>
+        <!-- nose -->
+        <ellipse cx="60" cy="65" rx="3.5" ry="2.5" fill="#ff8fab"/>
+        <!-- mouth -->
+        <path d="M56 68 Q60 73 64 68" fill="none" stroke="#e05480" stroke-width="1.8" stroke-linecap="round"/>
+        <!-- whiskers -->
+        <line x1="20" y1="63" x2="48" y2="66" stroke="#c9a0b0" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="20" y1="68" x2="48" y2="68" stroke="#c9a0b0" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="72" y1="66" x2="100" y2="63" stroke="#c9a0b0" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="72" y1="68" x2="100" y2="68" stroke="#c9a0b0" stroke-width="1.2" stroke-linecap="round"/>
+        <!-- blush -->
+        <ellipse class="cat-blush" cx="38" cy="70" rx="9" ry="5" fill="#ffb3c6" opacity=".7"/>
+        <ellipse class="cat-blush" cx="82" cy="70" rx="9" ry="5" fill="#ffb3c6" opacity=".7"/>
+        <!-- sparkles -->
+        <text class="cat-sparkle"  x="8"  y="28" font-size="14">✨</text>
+        <text class="cat-sparkle2" x="96" y="22" font-size="12">⭐</text>
+        <text class="cat-sparkle"  x="100" y="50" font-size="10">✨</text>
+        <!-- tiny heart above head -->
+        <text x="54" y="22" font-size="16">🥺</text>
+      </svg>
+    </div>
+    <p class="step-title">Winwin ku sayanggg<br>aku boleh minta maaf nggak? 🥺</p>
+    <div class="btn-row">
+      <button class="btn btn-yes" onclick="spawnFlowers(this); goStep(2)">Iya ❤️</button>
+    </div>
+  </div>
+
+  <!-- STEP 2: nervous sweating cat -->
+  <div class="step" id="step2">
+    <div class="cat-wrap">
+      <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+        <!-- tail wagging fast -->
+        <path class="cat-tail" d="M30 95 Q8 112 18 120 Q28 124 36 108" fill="none" stroke="#f4a0c0" stroke-width="5" stroke-linecap="round"/>
+        <!-- body -->
+        <ellipse cx="60" cy="88" rx="30" ry="24" fill="#fde8f0"/>
+        <!-- head -->
+        <circle cx="60" cy="58" r="32" fill="#fde8f0"/>
+        <!-- ears pointy nervous -->
+        <polygon class="cat-ear-l" points="30,30 20,6 46,24" fill="#fde8f0"/>
+        <polygon points="32,28 24,12 44,25" fill="#f9aecb"/>
+        <polygon class="cat-ear-r" points="90,30 100,6 74,24" fill="#fde8f0"/>
+        <polygon points="88,28 96,12 76,25" fill="#f9aecb"/>
+        <!-- eyes big teary -->
+        <ellipse cx="47" cy="56" rx="10" ry="11" fill="#3d2240"/>
+        <ellipse cx="73" cy="56" rx="10" ry="11" fill="#3d2240"/>
+        <circle cx="52" cy="51" r="3.5" fill="white"/>
+        <circle cx="78" cy="51" r="3.5" fill="white"/>
+        <circle cx="50" cy="58" r="1.5" fill="white"/>
+        <circle cx="76" cy="58" r="1.5" fill="white"/>
+        <!-- watery eyes bottom -->
+        <ellipse cx="47" cy="66" rx="5" ry="2" fill="#aaddff" opacity=".5"/>
+        <ellipse cx="73" cy="66" rx="5" ry="2" fill="#aaddff" opacity=".5"/>
+        <!-- tear drops -->
+        <ellipse cx="43" cy="72" rx="2" ry="3" fill="#aaddff" opacity=".8"/>
+        <ellipse cx="77" cy="72" rx="2" ry="3" fill="#aaddff" opacity=".8"/>
+        <!-- nose -->
+        <ellipse cx="60" cy="65" rx="3.5" ry="2.5" fill="#ff8fab"/>
+        <!-- wobbly worried mouth -->
+        <path d="M55 70 Q60 67 65 70" fill="none" stroke="#e05480" stroke-width="1.8" stroke-linecap="round"/>
+        <!-- whiskers -->
+        <line x1="18" y1="62" x2="46" y2="65" stroke="#c9a0b0" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="18" y1="67" x2="46" y2="67" stroke="#c9a0b0" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="74" y1="65" x2="102" y2="62" stroke="#c9a0b0" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="74" y1="67" x2="102" y2="67" stroke="#c9a0b0" stroke-width="1.2" stroke-linecap="round"/>
+        <!-- blush bigger because nervous -->
+        <ellipse class="cat-blush" cx="36" cy="71" rx="10" ry="6" fill="#ffb3c6" opacity=".8"/>
+        <ellipse class="cat-blush" cx="84" cy="71" rx="10" ry="6" fill="#ffb3c6" opacity=".8"/>
+        <!-- sweat drop -->
+        <ellipse cx="96" cy="35" rx="3" ry="4" fill="#aaddff" opacity=".9"/>
+        <path d="M96 31 Q99 26 96 24 Q93 26 96 31" fill="#aaddff" opacity=".9"/>
+        <!-- 🥹 emoji above -->
+        <text x="52" y="22" font-size="16">🥹</text>
+      </svg>
+    </div>
+    <p class="step-title">Sayanggkuu udah maafin aku belum? 🥹</p>
+    <p class="funny-msg" id="funnyMsg">...</p>
+    <div class="btn-row" id="btnRow2" style="min-height:60px; width:100%; position:relative;">
+      <button class="btn btn-yes" onclick="spawnFlowers(this); goStep(3)">Iya ❤️</button>
+      <button class="btn btn-no" id="btnNo"
+              onmouseenter="escapeBtn()"
+              ontouchstart="escapeBtn(event)"
+              onclick="return false">Belum 😤</button>
+    </div>
+  </div>
+
+  <!-- STEP 3: happy cat holding heart -->
+  <div class="step" id="step3">
+    <div class="cat-wrap">
+      <svg viewBox="0 0 120 130" xmlns="http://www.w3.org/2000/svg">
+        <!-- tail happy high -->
+        <path class="cat-tail" d="M88 92 Q110 70 105 50 Q103 42 98 48" fill="none" stroke="#f4a0c0" stroke-width="5" stroke-linecap="round"/>
+        <!-- body -->
+        <ellipse cx="60" cy="90" rx="30" ry="26" fill="#fde8f0"/>
+        <!-- arms holding heart -->
+        <path d="M32 85 Q22 70 28 60" fill="none" stroke="#fde8f0" stroke-width="10" stroke-linecap="round"/>
+        <path d="M88 85 Q98 70 92 60" fill="none" stroke="#fde8f0" stroke-width="10" stroke-linecap="round"/>
+        <!-- big heart held -->
+        <path d="M60 72 C60 72 44 60 44 50 C44 44 50 40 55 44 C57 46 59 49 60 51 C61 49 63 46 65 44 C70 40 76 44 76 50 C76 60 60 72 60 72Z" fill="#ff4d6d"/>
+        <!-- head -->
+        <circle cx="60" cy="52" r="32" fill="#fde8f0"/>
+        <!-- ears happy round -->
+        <polygon class="cat-ear-l" points="34,28 26,8 48,22" fill="#fde8f0"/>
+        <polygon points="36,26 30,13 46,23" fill="#f9aecb"/>
+        <polygon class="cat-ear-r" points="86,28 94,8 72,22" fill="#fde8f0"/>
+        <polygon points="84,26 90,13 74,23" fill="#f9aecb"/>
+        <!-- happy eyes (curved/closed) -->
+        <path d="M38 52 Q47 44 56 52" fill="none" stroke="#3d2240" stroke-width="3" stroke-linecap="round"/>
+        <path d="M64 52 Q73 44 82 52" fill="none" stroke="#3d2240" stroke-width="3" stroke-linecap="round"/>
+        <!-- eye sparkles -->
+        <text class="cat-sparkle"  x="34" y="50" font-size="8">✨</text>
+        <text class="cat-sparkle2" x="78" y="50" font-size="8">✨</text>
+        <!-- nose -->
+        <ellipse cx="60" cy="60" rx="3.5" ry="2.5" fill="#ff8fab"/>
+        <!-- big happy smile -->
+        <path d="M50 64 Q60 73 70 64" fill="none" stroke="#e05480" stroke-width="2" stroke-linecap="round"/>
+        <!-- whiskers -->
+        <line x1="18" y1="58" x2="46" y2="61" stroke="#c9a0b0" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="18" y1="63" x2="46" y2="63" stroke="#c9a0b0" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="74" y1="61" x2="102" y2="58" stroke="#c9a0b0" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="74" y1="63" x2="102" y2="63" stroke="#c9a0b0" stroke-width="1.2" stroke-linecap="round"/>
+        <!-- big blush happy -->
+        <ellipse class="cat-blush" cx="36" cy="65" rx="11" ry="6" fill="#ffb3c6" opacity=".85"/>
+        <ellipse class="cat-blush" cx="84" cy="65" rx="11" ry="6" fill="#ffb3c6" opacity=".85"/>
+        <!-- floating mini hearts -->
+        <text class="cat-sparkle"  x="2"  y="30" font-size="13">💕</text>
+        <text class="cat-sparkle2" x="100" y="25" font-size="13">💗</text>
+        <text class="cat-sparkle"  x="6"  y="60" font-size="10">🩷</text>
+      </svg>
+    </div>
+    <p id="step3Title">Yeay! Aku maacihh winwin baik hati ❤️</p>
+    <div id="apologyBox"><span id="typedText"></span><span id="cursor"></span></div>
+    <div class="btn-row" style="position:static; flex-wrap:wrap;">
+      <button class="btn btn-yes btn-outline" onclick="spawnFlowers(this); rereadMsg()">Baca Lagi ❤️</button>
+      <button class="btn btn-outline" onclick="spawnFlowers(this); restart()">Mulai Dari Awal 🔄</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ================================================
+   PESAN MAAF — edit di sini!
+================================================ */
+const apologyMessage =
+  "HALOOOO SAYANGGGKUUU, maap yawww kutinggall tidurr lagiii 😭 " +
+  "akuu mintaa maap yawww padahall 10 menit yang laluuu akuu masihh sadarr seharusnyyaaaa " +
+  "tapii entahh kenapaa tiba tiba dahh pagii ajaaa... " +
+  "jadii maapin akuu yawww dengann akuu membuatt kartu online yang sederhanaa iniiiwww 🥺❤️ " +
+  "— made with love from Adit 🐱";
+
+/* ================================================
+   STEP NAVIGATION
+================================================ */
+let currentStep = 1;
+
+function goStep(n) {
+  const oldEl = document.getElementById('step' + currentStep);
+  oldEl.style.opacity = '0';
+  oldEl.style.transform = 'translateY(-18px)';
+  oldEl.style.transition = 'opacity .3s ease, transform .3s ease';
+
+  setTimeout(() => {
+    oldEl.classList.remove('active');
+    oldEl.style.cssText = '';
+    currentStep = n;
+    const newEl = document.getElementById('step' + n);
+    newEl.classList.add('active');
+    if (n === 2) initStep2();
+    if (n === 3) initStep3();
+  }, 300);
+}
+
+function restart() {
+  stopConfetti();
+  noClickCount = 0;
+  goStep(1);
+}
+
+/* ================================================
+   STEP 2 — escaping "Belum" button
+================================================ */
+let noClickCount = 0;
+
+const funnyMessages = [
+  "yakin belum? 😭",
+  "sayanggg 🥺",
+  "sayangkuu winwin 🐱",
+  "jangan pilih yang itu 😭",
+  "coba pikir lagi dongs hehe ❤️",
+  "sayanggggg 🥹",
+];
+
+function initStep2() {
+  const btn = document.getElementById('btnNo');
+  btn.style.position = 'static';
+  btn.style.transform = '';
+  btn.style.left = '';
+  btn.style.top = '';
+  document.getElementById('funnyMsg').style.visibility = 'hidden';
+}
+
+function escapeBtn() {
+  const btn    = document.getElementById('btnNo');
+  const btnYes = document.querySelector('#step2 .btn-yes');
+  const card   = document.getElementById('card');
+  const cardRect   = card.getBoundingClientRect();
+  const yesRect    = btnYes.getBoundingClientRect();
+  const bw = btn.offsetWidth  || 110;
+  const bh = btn.offsetHeight || 46;
+
+  // Move button OUTSIDE the card entirely (floating over page background)
+  // so it can never sit on top of the Yes button
+  let left, top;
+  let tries = 0;
+
+  do {
+    // Pick random spot in the full viewport, biased away from card center
+    const side = Math.floor(Math.random() * 4); // 0=top,1=right,2=bottom,3=left
+    if (side === 0) {
+      left = cardRect.left + Math.random() * (cardRect.width - bw);
+      top  = Math.max(8, cardRect.top - bh - 10 - Math.random() * 60);
+    } else if (side === 1) {
+      left = Math.min(window.innerWidth - bw - 8, cardRect.right + 10 + Math.random() * 60);
+      top  = cardRect.top + Math.random() * (cardRect.height - bh);
+    } else if (side === 2) {
+      left = cardRect.left + Math.random() * (cardRect.width - bw);
+      top  = Math.min(window.innerHeight - bh - 8, cardRect.bottom + 10 + Math.random() * 60);
+    } else {
+      left = Math.max(8, cardRect.left - bw - 10 - Math.random() * 60);
+      top  = cardRect.top + Math.random() * (cardRect.height - bh);
+    }
+    tries++;
+  } while (
+    tries < 10 &&
+    left < yesRect.right && left + bw > yesRect.left &&
+    top  < yesRect.bottom && top + bh > yesRect.top
+  );
+
+  btn.style.position = 'fixed';
+  btn.style.left     = left + 'px';
+  btn.style.top      = top  + 'px';
+  btn.style.zIndex   = 50;
+
+  const scales = [1, 1.12, 0.88, 1.15, 0.92];
+  btn.style.transform = `scale(${scales[Math.floor(Math.random() * scales.length)]})`;
+
+  const msg = document.getElementById('funnyMsg');
+  msg.style.visibility = 'visible';
+  msg.textContent = funnyMessages[Math.floor(Math.random() * funnyMessages.length)];
+  msg.style.animation = 'none';
+  void msg.offsetWidth;
+  msg.style.animation = 'fadeIn .3s ease';
+}
+
+/* ================================================
+   STEP 3 — typewriter + confetti
+================================================ */
+let typeInterval = null;
+
+function initStep3() {
+  startConfetti();
+  rereadMsg();
+}
+
+function rereadMsg() {
+  clearInterval(typeInterval);
+  const el = document.getElementById('typedText');
+  el.textContent = '';
+  let i = 0;
+  const chars = Array.from(apologyMessage);
+  typeInterval = setInterval(() => {
+    if (i >= chars.length) { clearInterval(typeInterval); return; }
+    el.textContent += chars[i++];
+  }, 45);
+}
+
+/* ================================================
+   SPAWN FLOWERS — on every button click
+================================================ */
+const flowerEmojis = ['🌸','🌺','🌼','🌷','💐','🪷','🌻','🏵️'];
+
+function spawnFlowers(btn) {
+  const rect = btn.getBoundingClientRect();
+  const cx = rect.left + rect.width  / 2;
+  const cy = rect.top  + rect.height / 2;
+
+  for (let i = 0; i < 20; i++) {
+    const el = document.createElement('span');
+    el.className = 'flower-particle';
+    el.textContent = flowerEmojis[Math.floor(Math.random() * flowerEmojis.length)];
+
+    const angle    = Math.random() * Math.PI * 2;
+    const dist     = 70 + Math.random() * 140;
+    const tx       = Math.cos(angle) * dist;
+    const ty       = Math.sin(angle) * dist;
+    const size     = 1.0 + Math.random() * 1.0;
+    const duration = 800 + Math.random() * 600; // ms
+    const rot      = (Math.random() - 0.5) * 480;
+
+    // Start position
+    el.style.left      = cx + 'px';
+    el.style.top       = cy + 'px';
+    el.style.fontSize  = size + 'rem';
+    el.style.transform = 'translate(-50%, -50%) rotate(0deg) scale(1)';
+    el.style.opacity   = '1';
+    el.style.transition = 'none';
+
+    document.body.appendChild(el);
+
+    // Force reflow so starting state is painted, then animate
+    el.getBoundingClientRect();
+
+    el.style.transition = `transform ${duration}ms cubic-bezier(.2,.8,.3,1), opacity ${duration * 0.7}ms ease ${duration * 0.25}ms`;
+    el.style.transform  = `translate(calc(-50% + ${tx}px), calc(-50% + ${ty}px)) rotate(${rot}deg) scale(0.3)`;
+    el.style.opacity    = '0';
+
+    setTimeout(() => el.remove(), duration + 200);
+  }
+}
+
+/* ================================================
+   BACKGROUND FLOATING HEARTS (canvas)
+================================================ */
+(function () {
+  const canvas = document.getElementById('heartCanvas');
+  const ctx    = canvas.getContext('2d');
+  let W, H;
+
+  const particles = Array.from({ length: 28 }, () => ({
+    x:     Math.random() * window.innerWidth,
+    y:     Math.random() * window.innerHeight,
+    size:  5 + Math.random() * 12,
+    speed: 0.3 + Math.random() * 0.7,
+    drift: (Math.random() - 0.5) * 0.4,
+    alpha: 0.08 + Math.random() * 0.18,
+    hue:   340 + Math.random() * 20,
+  }));
+
+  function resize() {
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  function drawHeart(x, y, size) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.scale(size, size);
+    ctx.beginPath();
+    ctx.moveTo(0, -0.3);
+    ctx.bezierCurveTo( 0.5, -1,  1.1,  0,  0,  0.8);
+    ctx.bezierCurveTo(-1.1,  0, -0.5, -1,  0, -0.3);
+    ctx.restore();
+  }
+
+  (function loop() {
+    ctx.clearRect(0, 0, W, H);
+    particles.forEach(p => {
+      ctx.save();
+      ctx.globalAlpha = p.alpha;
+      ctx.fillStyle = `hsl(${p.hue},80%,72%)`;
+      drawHeart(p.x, p.y, p.size);
+      ctx.fill();
+      ctx.restore();
+      p.y -= p.speed;
+      p.x += p.drift;
+      if (p.y < -30) { p.y = H + 30; p.x = Math.random() * W; }
+      if (p.x < -30 || p.x > W + 30) p.x = Math.random() * W;
+    });
+    requestAnimationFrame(loop);
+  })();
+})();
+
+/* ================================================
+   CONFETTI (step 3)
+================================================ */
+let confettiAnim = null;
+let confettiParts = [];
+
+function startConfetti() {
+  const canvas = document.getElementById('confettiCanvas');
+  const ctx    = canvas.getContext('2d');
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const colors = ['#ff8fab','#ffb3c6','#ff4d6d','#ffd6e7','#ff85a1','#c9184a','#ffccd5'];
+  confettiParts = Array.from({ length: 120 }, () => ({
+    x:        Math.random() * canvas.width,
+    y:        -20 - Math.random() * canvas.height,
+    w:        7  + Math.random() * 8,
+    h:        5  + Math.random() * 6,
+    color:    colors[Math.floor(Math.random() * colors.length)],
+    rot:      Math.random() * Math.PI * 2,
+    rotSpeed: (Math.random() - 0.5) * 0.12,
+    speed:    1.5 + Math.random() * 2.5,
+    drift:    (Math.random() - 0.5) * 1.2,
+    heart:    Math.random() > 0.5,
+  }));
+
+  (function loop() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    confettiParts.forEach(p => {
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.fillStyle = p.color;
+      if (p.heart) {
+        ctx.beginPath();
+        ctx.moveTo(0, -p.h/4);
+        ctx.bezierCurveTo( p.w/2, -p.h,  p.w,  0,  0,  p.h/2);
+        ctx.bezierCurveTo(-p.w,   0, -p.w/2, -p.h,  0, -p.h/4);
+        ctx.fill();
+      } else {
+        ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+      }
+      ctx.restore();
+      p.y += p.speed; p.x += p.drift; p.rot += p.rotSpeed;
+      if (p.y > canvas.height + 20) { p.y = -20; p.x = Math.random() * canvas.width; }
+    });
+    confettiAnim = requestAnimationFrame(loop);
+  })();
+}
+
+function stopConfetti() {
+  if (confettiAnim) cancelAnimationFrame(confettiAnim);
+  const c = document.getElementById('confettiCanvas');
+  c.getContext('2d').clearRect(0, 0, c.width, c.height);
+  confettiParts = [];
+}
+
+window.addEventListener('resize', () => {
+  document.getElementById('confettiCanvas').width  = window.innerWidth;
+  document.getElementById('confettiCanvas').height = window.innerHeight;
+});
+</script>
+</body>
+</html>
