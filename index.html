@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>For Winwin 🩷</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght=0,700;1,700&family=Dancing+Script:wght=600;700&family=Cormorant+Garamond:ital,wght=1,600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #FFF0F5;
+    overflow: hidden;
+    font-family: 'Playfair Display', serif;
+    width: 100vw;
+    height: 100dvh;
+    touch-action: none;
+    user-select: none;
+  }
+
+  /* ─── SCENE WRAPPER ─── */
+  .scene {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 1s ease;
+  }
+  .scene.active { opacity: 1; pointer-events: all; }
+
+  /* ─── CANVAS LAPISAN UTAMA ─── */
+  .bg-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+
+  /* ─── SCENE 1 — PASTEL FLOWER RAIN ─── */
+  #scene1 { 
+    background: linear-gradient(135deg, #FFE4E1 0%, #FFF0F5 50%, #FFFFFF 100%);
+  }
+
+  #centerText {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+  }
+
+  .big-text {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-weight: 700;
+    font-size: clamp(5rem, 22vw, 13rem);
+    color: #FF69B4;
+    text-shadow: 0 0 25px #FFF, 0 0 45px #FFB6C1, 0 0 70px #FF69B4;
+    opacity: 0;
+    transform: scale(0.5);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    text-align: center;
+    line-height: 1;
+  }
+  .big-text.show {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .word-text {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-weight: 700;
+    font-size: clamp(3.5rem, 16vw, 9rem);
+    color: #FF1493;
+    text-shadow: 0 0 20px #FFF, 0 0 35px #FFB6C1, 0 0 60px #FF69B4;
+    opacity: 0;
+    transform: scale(0.8);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    text-align: center;
+    letter-spacing: 0.12em;
+  }
+  .word-text.show { opacity: 1; transform: scale(1); }
+
+  .heart-finale {
+    font-size: clamp(9rem, 35vw, 20rem);
+    opacity: 0;
+    animation: heartbeat 0.8s ease-in-out infinite alternate;
+    transition: opacity 0.5s ease;
+    filter: drop-shadow(0 0 25px #FF69B4) drop-shadow(0 0 45px #FF1493);
+  }
+  .heart-finale.show { opacity: 1; }
+
+  @keyframes heartbeat {
+    from { transform: scale(1); }
+    to   { transform: scale(1.15); }
+  }
+
+  /* ─── SCENE 2 — BACKGROUND & GREETING ─── */
+  #scene2 { background: linear-gradient(135deg, #FFE4E1 0%, #FFF0F5 50%, #FFE4E1 100%); flex-direction: column; }
+
+  /* Floating hearts */
+  .float-hearts-container {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 3;
+  }
+  .fheart {
+    position: absolute;
+    bottom: -50px;
+    opacity: 0;
+    animation: floatUp linear infinite;
+  }
+  @keyframes floatUp {
+    0%   { transform: translateY(0) rotate(0deg) scale(0.5); opacity: 0.9; }
+    50%  { opacity: 0.9; }
+    100% { transform: translateY(-115vh) rotate(90deg) scale(1.2); opacity: 0; }
+  }
+
+  /* Greeting Section */
+  #greetingSection {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    opacity: 0;
+    transition: opacity 0.8s ease;
+    padding: 20px;
+    gap: 15px;
+  }
+  #greetingSection.show { opacity: 1; }
+
+  .greeting-heart {
+    font-size: 4rem;
+    animation: heartbeat 1s ease-in-out infinite alternate;
+    filter: drop-shadow(0 0 20px #FF1493);
+  }
+
+  .typed-text {
+    font-family: 'Dancing Script', cursive;
+    font-size: clamp(1.6rem, 6.5vw, 2.4rem);
+    color: #FF1493;
+    text-align: center;
+    min-height: 40px;
+    text-shadow: 0 0 15px rgba(255,255,255,0.9), 0 0 5px rgba(255,255,255,1);
+    max-width: min(460px, 85vw);
+    line-height: 1.4;
+  }
+
+  /* Book section */
+  #bookSection {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    opacity: 0;
+    transition: opacity 0.8s ease;
+    gap: 25px;
+    padding: 20px;
+  }
+  #bookSection.show { opacity: 1; }
+
+  /* Message box above book */
+  #messageBox {
+    background: rgba(255,255,255,0.75);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 2px solid rgba(255,105,180,0.5);
+    border-radius: 20px;
+    padding: 16px 26px;
+    max-width: min(390px, 90vw);
+    text-align: center;
+    font-family: 'Dancing Script', cursive;
+    font-size: clamp(1.1rem, 4.5vw, 1.4rem);
+    color: #FF1493;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    box-shadow: 0 6px 20px rgba(255,182,193,0.5);
+    z-index: 12;
+  }
+  #messageBox.visible { opacity: 1; }
+  #messageBox::after {
+    content: '💖';
+    position: absolute;
+    top: -12px;
+    right: 14px;
+    font-size: 1.4rem;
+    animation: heartbeat 0.6s infinite alternate;
+  }
+
+  /* 3D Book */
+  #book {
+    width: min(320px, 85vw);
+    height: min(360px, 65vh);
+    position: relative;
+    perspective: 1500px;
+    cursor: pointer;
+    z-index: 11;
+  }
+
+  .book-page {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 4px 16px 16px 4px;
+    transform-origin: left center;
+    transform-style: preserve-3d;
+    transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+    box-shadow: 8px 8px 35px rgba(255,20,147,0.2);
+  }
+
+  .page-front, .page-back {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: 4px 16px 16px 4px;
+    overflow: hidden;
+  }
+  .page-back { transform: rotateY(180deg); }
+
+  /* Cover */
+  .cover-face {
+    background: linear-gradient(135deg, #FFB6C1 0%, #FFE4E1 40%, #FFC0CB 70%, #FF69B4 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    border: 2px solid rgba(255,105,180,0.5);
+  }
+  .cover-icon {
+    font-size: 5.5rem;
+    filter: drop-shadow(0 0 20px #FF1493);
+    animation: heartbeat 0.8s ease-in-out infinite alternate;
+  }
+  .cover-title {
+    font-family: 'Dancing Script', cursive;
+    color: #FF1493;
+    font-weight: bold;
+    font-size: clamp(1.4rem, 6vw, 1.9rem);
+    text-shadow: 0 0 12px #FFF, 0 0 5px #FFF;
+    letter-spacing: 0.08em;
+  }
+
+  /* Photo page */
+  .photo-page {
+    background: #fffbfb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 14px;
+    border: 1px solid #f2d4df;
+  }
+  .photo-frame {
+    width: 100%;
+    height: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 4px solid #FFB6D9;
+    box-shadow: 0 0 25px rgba(255,20,147,0.15);
+    background: #f7e4ed;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .photo-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Back cover */
+  .back-cover {
+    background: linear-gradient(135deg, #FFB6C1 0%, #FFE4E1 50%, #FFC0CB 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid rgba(255,105,180,0.4);
+    font-size: 4.5rem;
+    filter: drop-shadow(0 0 20px #FF1493);
+    transform: rotateY(180deg);
+  }
+
+  /* Swipe hint */
+  #swipeHint {
+    font-family: 'Dancing Script', cursive;
+    color: #FF1493;
+    font-weight: bold;
+    font-size: clamp(0.95rem, 4vw, 1.2rem);
+    text-align: center;
+    text-shadow: 0 0 10px #FFF;
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 0.6; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.05); }
+  }
+
+  /* ─── SCENE 3 — LOVE PATTERN ─── */
+  #scene3 { background: linear-gradient(135deg, #FFF0F5 0%, #FFE4E1 50%, #FFF0F5 100%); flex-direction: column; gap: 30px; }
+  
+  #lovePattern {
+    position: relative;
+    width: min(390px, 94vw);
+    height: min(390px, 94vw);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+  }
+  #loveGrid {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+  .love-photo {
+    position: absolute;
+    width: 76px;
+    height: 76px;
+    border-radius: 12px;
+    border: 2.5px solid #FF69B4;
+    box-shadow: 0 0 15px rgba(255,20,147,0.35), 0 0 25px rgba(255,192,203,0.5);
+    overflow: hidden;
+    opacity: 0;
+    transform: scale(0) rotate(var(--rot));
+    transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+    background: #fff8f8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .love-photo.appear {
+    opacity: 1;
+    transform: scale(1) rotate(var(--rot));
+  }
+  .love-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Tombol Ulang */
+  #replayBtn {
+    z-index: 20;
+    font-family: 'Dancing Script', cursive;
+    font-size: 1.3rem;
+    font-weight: bold;
+    padding: 12px 28px;
+    background: rgba(255, 192, 203, 0.85);
+    color: #FF1493;
+    border: 2.5px solid rgba(255, 105, 180, 0.7);
+    border-radius: 35px;
+    cursor: pointer;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 6px 20px rgba(255, 20, 147, 0.25);
+  }
+  #replayBtn.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  #replayBtn:hover {
+    background: rgba(255, 20, 147, 0.8);
+    color: #fff;
+    box-shadow: 0 0 30px rgba(255, 20, 147, 0.5);
+  }
+
+  /* ─── FADE OVERLAY ─── */
+  #fadeOverlay {
+    position: fixed;
+    inset: 0;
+    background: #FFE4E1;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 1000;
+    transition: opacity 0.8s ease;
+  }
+  #fadeOverlay.active { opacity: 1; }
+</style>
+</head>
+<body>
+
+<div id="fadeOverlay"></div>
+
+<div class="scene" id="scene1">
+  <canvas id="canvasScene1" class="bg-canvas"></canvas>
+  <div id="centerText">
+    <div class="big-text" id="countdownEl"></div>
+    <div class="word-text" id="wordEl" style="display:none"></div>
+    <div class="heart-finale" id="heartFinale" style="display:none">🩷</div>
+  </div>
+</div>
+
+<div class="scene" id="scene2">
+  <canvas id="canvasScene2" class="bg-canvas"></canvas>
+  <div class="float-hearts-container" id="floatHearts2"></div>
+
+  <div id="greetingSection">
+    <div class="greeting-heart">✨💖✨</div>
+    <div class="typed-text" id="typedTarget"></div>
+  </div>
+
+  <div id="bookSection">
+    <div id="messageBox">Usap buku untuk membuka 🩷</div>
+
+    <div id="book">
+      <div class="book-page" id="page0" style="z-index:3">
+        <div class="page-front cover-face">
+          <div class="cover-icon">💝</div>
+          <div class="cover-title">For Winwin</div>
+        </div>
+        <div class="page-back photo-page">
+          <div class="photo-frame">
+            <img src="https://i.ibb.co/ZpKzdYsB/IMG-20260516-WA0000.jpg" alt="Photo 1" onerror="this.parentNode.innerHTML='🌸'">
+          </div>
+        </div>
+      </div>
+
+      <div class="book-page" id="page1" style="z-index:2">
+        <div class="page-front photo-page">
+          <div class="photo-frame">
+            <img src="https://i.ibb.co/nMyTHnRL/IMG-20260521-WA0029.jpg" alt="Photo 2" onerror="this.parentNode.innerHTML='💮'">
+          </div>
+        </div>
+        <div class="page-back photo-page">
+          <div class="photo-frame">
+            <img src="https://i.ibb.co/20swHXyn/IMG-20260607-WA0010.jpg" alt="Photo 3" onerror="this.parentNode.innerHTML='🏵️'">
+          </div>
+        </div>
+      </div>
+
+      <div class="book-page" id="page2" style="z-index:1">
+        <div class="page-front photo-page">
+          <div class="photo-frame">
+            <img src="https://i.ibb.co/Lzv3FcrN/IMG-20260502-WA0058.jpg" alt="Photo 4" onerror="this.parentNode.innerHTML='✨'">
+          </div>
+        </div>
+        <div class="page-back back-cover">💖</div>
+      </div>
+    </div>
+
+    <div id="swipeHint">👆 Usap ke kanan untuk membuka</div>
+  </div>
+</div>
+
+<div class="scene" id="scene3">
+  <canvas id="canvasScene3" class="bg-canvas"></canvas>
+  <div class="float-hearts-container" id="floatHearts3"></div>
+  <div id="lovePattern">
+    <div id="loveGrid"></div>
+  </div>
+  <button id="replayBtn" onclick="resetAndRestart()">Mainkan Lagi 🔁</button>
+</div>
+
+<script>
+/* ════════════════════════════════════════
+   CONFIG
+════════════════════════════════════════ */
+const CONFIG = {
+  recipientName: "Winwin",
+  photos: [
+    "https://i.ibb.co/ZpKzdYsB/IMG-20260516-WA0000.jpg",
+    "https://i.ibb.co/nMyTHnRL/IMG-20260521-WA0029.jpg",
+    "https://i.ibb.co/20swHXyn/IMG-20260607-WA0010.jpg",
+    "https://i.ibb.co/Lzv3FcrN/IMG-20260502-WA0058.jpg"
+  ],
+  messages: [
+    "maaf yaww minta maaf muluuuuwwwww",
+    "jugaa semangattt yawwww TPAnyaa"
+  ]
+};
+
+/* ════════════════════════════════════════
+   HELPERS & REUSABLE TIMERS
+════════════════════════════════════════ */
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const fadeOverlay = document.getElementById('fadeOverlay');
+
+let activeLoops = [];
+
+function clearAllLoops() {
+  activeLoops.forEach(stopFn => { if(typeof stopFn === 'function') stopFn(); });
+  activeLoops = [];
+}
+
+async function crossFade(hideId, showId) {
+  fadeOverlay.classList.add('active');
+  await sleep(900);
+  document.getElementById(hideId).classList.remove('active');
+  document.getElementById(showId).classList.add('active');
+  await sleep(200);
+  fadeOverlay.classList.remove('active');
+}
+
+function typeEffect(element, text, speed = 60) {
+  return new Promise((resolve) => {
+    element.innerHTML = "";
+    let i = 0;
+    function type() {
+      if (i < text.length) {
+        element.innerHTML += text.charAt(i);
+        i++;
+        setTimeout(type, speed);
+      } else {
+        resolve();
+      }
+    }
+    type();
+  });
+}
+
+/* ════════════════════════════════════════
+   ENGINE: HUJAN BUNGA PASTEL SUPER RAME
+════════════════════════════════════════ */
+function startFlowerRain(canvasId, densityMultiplier = 1) {
+  const canvas = document.getElementById(canvasId);
+  const ctx = canvas.getContext('2d');
+  let flowers = [];
+  const FLOWER_POOL = ["🌸", "💮", "🏵️", "🌸", "🤍", "✨", "💕", "🎀"];
+
+  function initElements() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    const totalCount = Math.floor((canvas.width / 14) * densityMultiplier);
+    
+    flowers = Array.from({ length: totalCount }, () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * -canvas.height,
+      speed: 1.8 + Math.random() * 2.5,
+      size: 14 + Math.random() * 16,
+      char: FLOWER_POOL[Math.floor(Math.random() * FLOWER_POOL.length)],
+      swing: Math.random() * 100,
+      swingSpeed: 0.015 + Math.random() * 0.02,
+      rotation: Math.random() * Math.PI,
+      rotSpeed: (Math.random() - 0.5) * 0.03
+    }));
+  }
+  
+  initElements();
+  window.addEventListener('resize', initElements);
+
+  const loop = setInterval(() => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    for (let i = 0; i < flowers.length; i++) {
+      const f = flowers[i];
+      ctx.save();
+      
+      const currentX = f.x + Math.sin(f.swing) * 20;
+      
+      ctx.translate(currentX, f.y);
+      ctx.rotate(f.rotation);
+      ctx.font = `${f.size}px serif`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      
+      ctx.fillText(f.char, 0, 0);
+      ctx.restore();
+
+      f.y += f.speed;
+      f.swing += f.swingSpeed;
+      f.rotation += f.rotSpeed;
+
+      if (f.y > canvas.height + 30) {
+        f.y = -30;
+        f.x = Math.random() * canvas.width;
+        f.speed = 1.8 + Math.random() * 2.5;
+        f.char = FLOWER_POOL[Math.floor(Math.random() * FLOWER_POOL.length)];
+      }
+    }
+  }, 25);
+
+  const stopFn = () => {
+    clearInterval(loop);
+    window.removeEventListener('resize', initElements);
+  };
+  activeLoops.push(stopFn);
+  return stopFn;
+}
+
+/* ════════════════════════════════════════
+   ENGINE: FLOATING HEARTS
+════════════════════════════════════════ */
+function startFloatingHearts(containerId, spawnInterval = 600) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = ''; 
+  const HEART_TYPES = ['🩷','❤️','💕','💗','💓','🌸','✨','💝'];
+  
+  const spawnLoop = setInterval(() => {
+    const heart = document.createElement('div');
+    heart.className = 'fheart';
+    heart.textContent = HEART_TYPES[Math.floor(Math.random() * HEART_TYPES.length)];
+    heart.style.left = `${Math.random() * 100}%`;
+    heart.style.animationDuration = `${3.5 + Math.random() * 4}s`;
+    heart.style.fontSize = `${0.9 + Math.random() * 1.1}rem`;
+    
+    container.appendChild(heart);
+    setTimeout(() => heart.remove(), 8000);
+  }, spawnInterval);
+
+  const stopFn = () => clearInterval(spawnLoop);
+  activeLoops.push(stopFn);
+  return stopFn;
+}
+
+/* ════════════════════════════════════════
+   SCENE 1 RUNNER
+════════════════════════════════════════ */
+async function runScene1() {
+  clearAllLoops();
+  
+  const countdown = document.getElementById('countdownEl');
+  const wordEl = document.getElementById('wordEl');
+  const hf = document.getElementById('heartFinale');
+
+  countdown.style.display = 'block';
+  countdown.classList.remove('show');
+  wordEl.style.display = 'none';
+  wordEl.classList.remove('show');
+  hf.style.display = 'none';
+  hf.classList.remove('show');
+
+  document.getElementById('scene1').classList.add('active');
+  
+  startFlowerRain('canvasScene1', 1.5);
+
+  await sleep(600);
+
+  // — Countdown —
+  for (let n = 3; n >= 1; n--) {
+    countdown.textContent = n;
+    countdown.classList.add('show');
+    await sleep(700);
+    countdown.classList.remove('show');
+    await sleep(350);
+  }
+  countdown.style.display = 'none';
+
+  // — Words —
+  const words = ["I'M", "TRULY", "SORRY", "MY", "LOVE", CONFIG.recipientName];
+  wordEl.style.display = 'block';
+
+  for (const w of words) {
+    wordEl.textContent = w;
+    wordEl.classList.add('show');
+    await sleep(650);
+    wordEl.classList.remove('show');
+    await sleep(250);
+  }
+  wordEl.style.display = 'none';
+
+  // — Heart finale —
+  hf.style.display = 'block';
+  await sleep(50);
+  hf.classList.add('show');
+  await sleep(2500);
+
+  await crossFade('scene1', 'scene2');
+  runScene2();
+}
+
+/* ════════════════════════════════════════
+   SCENE 2 RUNNER
+════════════════════════════════════════ */
+async function runScene2() {
+  startFlowerRain('canvasScene2', 1.0);
+  startFloatingHearts('floatHearts2', 500);
+
+  const greetingSection = document.getElementById('greetingSection');
+  const typedTarget = document.getElementById('typedTarget');
+  
+  greetingSection.classList.add('show');
+  
+  await typeEffect(typedTarget, `Halo sayangkuu winwin yangg cantikkk bangetttttttt.. akuu punyaa sesuatuu buatt kamuu`, 55);
+  await sleep(2500); 
+  
+  greetingSection.classList.remove('show');
+  await sleep(900);
+
+  const bookSection = document.getElementById('bookSection');
+  bookSection.classList.add('show');
+  initBook();
+}
+
+let currentFlipHandler = null;
+
+function initBook() {
+  const pages = [
+    document.getElementById('page0'),
+    document.getElementById('page1'),
+    document.getElementById('page2')
+  ];
+  
+  pages.forEach((page, index) => {
+    page.style.transform = 'rotateY(0deg)';
+    page.style.zIndex = pages.length - index;
+  });
+
+  const msgBox = document.getElementById('messageBox');
+  const swipeHint = document.getElementById('swipeHint');
+  
+  msgBox.textContent = "Usap buku untuk membuka 🩷";
+  msgBox.classList.add('visible');
+  swipeHint.textContent = "👆 Usap atau klik buku untuk membuka";
+
+  let currentPage = 0; 
+  let isAnimating = false;
+
+  const msgs = [
+    "Usap buku untuk membuka 🩷",
+    CONFIG.messages[0],
+    CONFIG.messages[1]
+  ];
+
+  const book = document.getElementById('book');
+  let touchStartX = 0;
+
+  function flipForward() {
+    if (isAnimating || currentPage >= 3) return;
+    isAnimating = true;
+
+    if (currentPage < pages.length) {
+      pages[currentPage].style.zIndex = 100 + currentPage;
+      pages[currentPage].style.transform = 'rotateY(-180deg)';
+      
+      const flippedPage = pages[currentPage];
+      const pageIndex = currentPage;
+      
+      setTimeout(() => {
+        flippedPage.style.zIndex = pageIndex + 1; 
+      }, 800);
+    }
+    currentPage++;
+
+    if (currentPage < msgs.length) {
+      msgBox.classList.remove('visible');
+      setTimeout(() => {
+        msgBox.textContent = msgs[currentPage];
+        msgBox.classList.add('visible');
+      }, 400);
+    }
+
+    if (currentPage === 3) {
+      swipeHint.textContent = '💝 Terima kasih telah membuka';
+      setTimeout(() => {
+        crossFade('scene2', 'scene3').then(runScene3);
+      }, 2000);
+    } else {
+      swipeHint.textContent = '👆 Lanjut geser lagi';
+    }
+
+    setTimeout(() => { isAnimating = false; }, 850);
+  }
+
+  if (currentFlipHandler) {
+    book.removeEventListener('click', currentFlipHandler);
+  }
+  currentFlipHandler = flipForward;
+  book.addEventListener('click', currentFlipHandler);
+
+  book.addEventListener('touchstart', e => {
+    touchStartX = e.touches[0].clientX;
+  }, { passive: true });
+
+  book.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    if (Math.abs(dx) > 30 && dx < 0) {
+      flipForward();
+    }
+  }, { passive: true });
+}
+
+/* ════════════════════════════════════════
+   SCENE 3 RUNNER
+════════════════════════════════════════ */
+async function runScene3() {
+  startFlowerRain('canvasScene3', 1.0);
+  startFloatingHearts('floatHearts3', 500);
+
+  const replayBtn = document.getElementById('replayBtn');
+  replayBtn.classList.remove('show');
+
+  const N = 16;
+  const positions = [];
+  const grid = document.getElementById('loveGrid');
+  grid.innerHTML = ''; 
+  grid.style.transform = 'scale(1)';
+
+  const SIZE = grid.offsetWidth;
+  
+  const photoTest = document.createElement('div');
+  photoTest.className = 'love-photo';
+  grid.appendChild(photoTest);
+  const PHOTO_SIZE = photoTest.offsetWidth;
+  grid.innerHTML = ''; 
+  const HALF = PHOTO_SIZE / 2;
+
+  for (let i = 0; i < N; i++) {
+    const t = (i / N) * 2 * Math.PI - Math.PI / 2;
+    const hx = 16 * Math.pow(Math.sin(t), 3);
+    const hy = -(13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t));
+    const px = (hx / 17.5 + 1) / 2;
+    const py = ((hy + 2) / 16.5 + 1) / 2; 
+    positions.push({ px, py });
+  }
+
+  let startIdx = 0;
+  let minDist = Infinity;
+  for (let i = 0; i < positions.length; i++) {
+    const d = Math.abs(positions[i].px - 0.5) + positions[i].py;
+    if (d < minDist) { minDist = d; startIdx = i; }
+  }
+
+  const rightArc = [];
+  const leftArc = [];
+  for (let i = 0; i < N; i++) {
+    const idx = (startIdx + i) % N;
+    if (i <= N / 2) rightArc.push(positions[idx]);
+    else leftArc.push(positions[idx]);
+  }
+
+  const orderedPositions = [...rightArc, ...leftArc.reverse()];
+  const photos = CONFIG.photos;
+  const rots = [-4, 3, -2, 4, -3, 2, -4, 4, -3, 3, -2, 2, -4, 3, 0, -2];
+
+  orderedPositions.forEach((pos, i) => {
+    const el = document.createElement('div');
+    el.className = 'love-photo';
+    
+    el.style.left = (pos.px * SIZE - HALF) + 'px';
+    el.style.top  = (pos.py * SIZE - HALF) + 'px';
+    el.style.setProperty('--rot', (rots[i % rots.length]) + 'deg');
+
+    const src = photos[i % photos.length];
+    const img = document.createElement('img');
+    img.src = src;
+    img.alt = 'photo';
+    img.onerror = () => { el.innerHTML = '🌸'; };
+    el.appendChild(img);
+    grid.appendChild(el);
+  });
+
+  const photoEls = grid.querySelectorAll('.love-photo');
+  await sleep(400);
+  for (let i = 0; i < photoEls.length; i++) {
+    await sleep(100); 
+    photoEls[i].classList.add('appear');
+  }
+
+  await sleep(400);
+  grid.style.transition = 'transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+  grid.style.transform = 'scale(1.08)';
+  await sleep(500);
+  grid.style.transform = 'scale(1)';
+
+  await sleep(2500);
+  replayBtn.classList.add('show');
+}
+
+/* ════════════════════════════════════════
+   FUNGSI RESET & RESTART
+════════════════════════════════════════ */
+async function resetAndRestart() {
+  document.getElementById('replayBtn').classList.remove('show');
+  await crossFade('scene3', 'scene1');
+  
+  document.getElementById('bookSection').classList.remove('show');
+  document.getElementById('greetingSection').classList.remove('show');
+
+  runScene1();
+}
+
+/* ════════════════════════════════════════
+   START RUNNER
+════════════════════════════════════════ */
+window.addEventListener('DOMContentLoaded', () => {
+  runScene1();
+});
+</script>
+</body>
+</html>
